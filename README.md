@@ -1,4 +1,4 @@
-# Raspy 3.3
+# RasPy 3.3
 
 ## Python Package Requirements
 
@@ -74,9 +74,9 @@
 }
 ```
 
-## Run Raspy
+## Run RasPy
 
-Start Raspy with -d to enter debug mode
+Start RasPy with -d to enter debug mode
 
 ```bash
 python raspy.py [-d]
