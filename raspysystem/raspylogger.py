@@ -23,6 +23,9 @@ class RasPyLogger(object):
     def get_logger(self):
         return self._logger
 
+    def logc(self, msg):
+        self._logger.critical(msg)
+
     def logd(self, msg, logtype=TYPE_NORMAL):
         self._logger.debug(self._prepend_type(msg, logtype))
 

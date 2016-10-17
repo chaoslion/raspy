@@ -39,6 +39,7 @@ if __name__ == "__main__":
     WeatherTask(raspy)
     SensorTask(raspy)
     NotifierTask(raspy)
-
     # StatsTask(raspy)
+
     raspy.run()
+    raise Exception("self shutdown. see info log!")
