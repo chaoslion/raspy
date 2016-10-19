@@ -11,6 +11,11 @@
 
 ## Basic Configuration
 
+### Permissions
+
+* RasPy must run with root permissions
+* php folder must belong to webserver group [www-data]
+
 ### Example configuration
 
 ```json

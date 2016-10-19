@@ -4,7 +4,7 @@ if __name__ == "__main__":
     import os
     import sys
     import argparse
-    
+
     path = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(path)
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # from raspytasks.stats.task import StatsTask
 
     parser = argparse.ArgumentParser(
-        description="Smart Task Schedule Application for the Raspberry Pi"
+        description="Smart periodic task execution application for the Raspberry Pi"
     )
 
     parser.add_argument("-d", "--debug", dest="debug", action="store_true", default=False)
