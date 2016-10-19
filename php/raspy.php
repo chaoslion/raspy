@@ -37,6 +37,7 @@ class RasPy  {
         $this->timestamp = $timestamp;
         $this->reduced = $reduced;
         $this->authorized = $authorized;
+        $this->path = $path;
 
         $this->tasknames = array(
             'supply',
@@ -55,6 +56,10 @@ class RasPy  {
             true
         );
 	}
+
+    public function getPath() {
+        return $this->path;
+    }
 
 	public function getApiKey() {
 		return $this->config['apikey'];
