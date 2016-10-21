@@ -20,7 +20,8 @@ class RasPySimpleTask(RasPyLogger):
         num=[types.IntType,types.FloatType],
         string=[types.StringType, types.UnicodeType],
         array=[types.ListType],
-        dict=[types.DictType]
+        dict=[types.DictType],
+        bool=[types.BooleanType]
     )
 
     def __init__(self, parent, name):

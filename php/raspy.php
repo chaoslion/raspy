@@ -318,26 +318,26 @@ class RasPy  {
             return $this->response_wrap(false, $this::ERR_INVALID_CMD);
         }
 
-        if(!isset($params['payload'])) {
+        if(!isset($params['arguments'])) {
             return $this->response_wrap(false, $this::ERR_MISSING_ARG);
         }
-        $payload = $params['payload'];
+        $arguments = $params['arguments'];
 
         // check if valid json
-        json_decode($payload);
+        json_decode($arguments);
         if( json_last_error() != 0 ) {
             return $this->response_wrap(false, $this::ERR_INVALID_ARG);
         }
 
         // normal quotes to hex quotes
-        $payload = htmlspecialchars($payload);
+        $arguments = htmlspecialchars($arguments);
 
         $request = '{';
         $request .= '"type":"REQUEST"';
         $request .= ',"task":"' . $this->taskname . '"';
         $request .= ',"timestamp":0';
         $request .= ',"command":"' . $command . '"';
-        $request .= ',"payload":"' . $payload . '"';
+        $request .= ',"arguments":"' . $arguments . '"';
         $request .= '}';
 
         $response = '';

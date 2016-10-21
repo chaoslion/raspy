@@ -19,26 +19,6 @@ from raspylogger import RasPyLogger
 from raspysupplyreader import RasPySupplyReader
 from raspysamplelogger import RasPySampleLogger
 
-# CACHE CONTENTS:
-# {
-#     fixed after run
-#     info: {
-#         total: xxx
-#         task: xxx
-#         timestamp: xxx,
-#         updates: xxx,
-#         period: xxx
-#     },
-#     fixed after run
-#     report: {
-#         ...
-#     },
-#     dynamic before and after run
-#     request: {
-#         ...
-#     }
-# }
-
 # PHP Frontend will add wrapper:
 # prepend result string with error code
 # {
@@ -265,23 +245,23 @@ class RasPyKernel(RasPyLogger):
         #     cache.recall()
         # )
 
-    def _request_task(self, taskname, command, payload):
+    def _request_task(self, taskname, command, arguments):
         task = self._tasks[taskname]
 
         # hex quotes to normal quotes
         h = HTMLParser()
-        payload = h.unescape(payload)
+        arguments = h.unescape(arguments)
 
         # arg is json object, parse it
         # frontend ensures valid json, check again just in case
         try:
-            payload = json.loads(payload)
+            arguments = json.loads(arguments)
         except json.JSONDecodeError as e:
             self.loge("Invalid request arg json: {}".format(e))
             return self.ERR_REQUEST_FAILED
 
         # could be PASS; ADD; REMOVE which are OK
-        if task.request(command, payload) == RasPySimpleTask.REQ_FAIL:
+        if task.request(command, arguments) == RasPySimpleTask.REQ_FAIL:
             return self.ERR_REQUEST_FAILED
 
         # only update report
@@ -387,7 +367,7 @@ class RasPyKernel(RasPyLogger):
                     query_result = self._request_task(
                         taskname,
                         query["command"],
-                        query["payload"]
+                        query["arguments"]
                     )
 
             self._scheduler_lock.release()

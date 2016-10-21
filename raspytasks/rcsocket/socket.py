@@ -187,15 +187,16 @@ class SocketControllerTask(RasPySimpleTask):
         self._force_all = True
         return self.REQ_PASS
 
-    def _req_mode_user(self, args):
+    def _req_mode_user(self, args, update):
         address = args["address"]
         state = args["state"]
-        index = self.get_sockets().get_index(address)
+        socket = self.get_sockets().get(address)
 
         if not update:
-            if index < 0:
+            if socket is None:
                 self.loge("Socket was not found: {}".format(address))
                 return self.REQ_FAIL
+            index = self.get_sockets().get_index(address)
             return self.req_statecheck(
                 "socket{}mode".format(index),
                 (
@@ -207,15 +208,15 @@ class SocketControllerTask(RasPySimpleTask):
         socket.mode_user(state)
         return self.REQ_PASS
 
-    def _req_mode_auto(self, args):
+    def _req_mode_auto(self, args, update):
         address = args["address"]
-        state = args["state"]
-        index = self.get_sockets().get_index(address)
+        socket = self.get_sockets().get(address)
 
         if not update:
-            if index < 0:
+            if socket is None:
                 self.loge("Socket was not found: {}".format(address))
                 return self.REQ_FAIL
+            index = self.get_sockets().get_index(address)
             return self.req_statecheck(
                 "socket{}mode".format(index),
                     socket.get_mode() == Socket.MODE_AUTO
