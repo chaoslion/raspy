@@ -23,6 +23,35 @@ class OSInfoTask(RasPySimpleTask):
         self._loadavg = list()
         self._cpus = list()
 
+        self._hardware = None
+        self._revision = None
+        self._board = None
+
+        # data from http://www.raspberrypi-spy.co.uk/2012/09/checking-your-raspberry-pi-board-version/
+        self._raspirevs = dict()
+        self._raspirevs["0002"] = "Model B Rev 1"
+        self._raspirevs["0003"] = "Model B Rev 1"
+        self._raspirevs["0004"] = "Model B Rev 2"
+        self._raspirevs["0005"] = "Model B Rev 2"
+        self._raspirevs["0006"] = "Model B Rev 2"
+        self._raspirevs["0007"] = "Model A"      
+        self._raspirevs["0008"] = "Model A"      
+        self._raspirevs["0009"] = "Model A"     
+        self._raspirevs["000d"] = "Model B Rev 2"
+        self._raspirevs["000e"] = "Model B Rev 2"
+        self._raspirevs["000f"] = "Model B Rev 2"
+        self._raspirevs["0010"] = "Model B+"     
+        self._raspirevs["0013"] = "Model B+"    
+        self._raspirevs["0011"] = "Compute Module"
+        self._raspirevs["0012"] = "Model A+"    
+        self._raspirevs["0014"] = "Compute 512MB"
+        self._raspirevs["0015"] = "Model A+"    
+        self._raspirevs["a01041"] = "Pi 2 Model B"  
+        self._raspirevs["a21041"] = "Pi 2 Model B"
+        self._raspirevs["900092"] = "PiZero"
+        self._raspirevs["a02082"] = "Pi 3 Model B" 
+        self._raspirevs["a22082"] = "Pi 3 Model B"
+
     def _get_cpu_freq(self, maxcpu):
         freqs = list()
         for cpuid in range(maxcpu):
@@ -40,29 +69,52 @@ class OSInfoTask(RasPySimpleTask):
 
     # this will only work for RasPi 1&2
     # expect processor followed by model name in /proc/procinfo
-    def _get_cpu_models(self, maxcpu):
+    def _get_cpu_infos(self):
         model_line = "model name\t: "
-        model_line_len = len(model_line)
-        models = list()
+        hw_line = "Hardware\t: "
+        rev_line = "Revision\t: "
+        info_result = dict(
+            models=list(),
+            hardware="",
+            revision="",
+            board=""
+        )
 
-        with open("/proc/cpuinfo", "r") as f:
+        with open("/proc/cpuinfo", "r") as f:            
             for line in f:
+                result = None
                 if line.find(model_line) >= 0:
-                    model = line[model_line_len:].rstrip()
-                    models.append(model)
-        return models
+                    result = line[len(model_line):].rstrip()
+                    info_result["models"].append(result)
+
+                elif line.find(hw_line) >= 0:
+                    result = line[len(hw_line):].rstrip()
+                    info_result["hardware"] = result
+
+                elif line.find(rev_line) >= 0:
+                    result = line[len(rev_line):].rstrip()
+                    info_result["revision"] = result
+
+        if info_result["revision"] in self._raspirevs:
+            info_result["board"] = self._raspirevs[info_result["revision"]]
+                
+        return info_result
 
     def _update_cpus(self):
         num_cpu = psutil.cpu_count()
         freqs = self._get_cpu_freq(num_cpu)
-        models = self._get_cpu_models(num_cpu)
+        cpu_infos = self._get_cpu_infos()
         for i in range(num_cpu):
             self._cpus.append(dict(
                 name="cpu{}".format(i),
                 freq=freqs[i],
-                model=models[i],
+                model=cpu_infos["models"][i],
                 usage=0
             ))
+        
+        self._hardware = cpu_infos["hardware"]
+        self._revision = cpu_infos["revision"]
+        self._board = cpu_infos["board"]
 
     def _update_unixkernel(self):
         with open("/proc/sys/kernel/osrelease", "r") as f:
@@ -98,6 +150,9 @@ class OSInfoTask(RasPySimpleTask):
     def startup_event(self, db, cfg):
         self._update_unixkernel()
         self._update_distro()
+        # +ISSUE
+        # cpu info might not just be static data
+        # freq could change on the fly...
         self._update_cpus()
         return True
 
@@ -116,4 +171,7 @@ class OSInfoTask(RasPySimpleTask):
             idletime=self._idletime,
             loadavg=self._loadavg,
             cpus=self._cpus,
+            hardware=self._hardware,
+            revision=self._revision,
+            board=self._board
         )

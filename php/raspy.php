@@ -151,6 +151,9 @@ class RasPy  {
     private function reduce_samplelogger(&$logger) {
         unset($logger['samples']);
         unset($logger['avgsamples']);
+        unset($logger['starttime']);
+        unset($logger['mintime']);
+        unset($logger['maxtime']);
     }
 
     private function reduce_energymeter(&$energy) {
