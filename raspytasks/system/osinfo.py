@@ -25,32 +25,40 @@ class OSInfoTask(RasPySimpleTask):
 
         self._hardware = None
         self._revision = None
-        self._board = None
+        # self._board = None
 
-        # data from http://www.raspberrypi-spy.co.uk/2012/09/checking-your-raspberry-pi-board-version/
+        self._overclocked = False
+
+        # ISSUE 
+        # needs fix since boards like 1a01040 are not included..
+        # data from http://elinux.org/RPi_HardwareHistory
         self._raspirevs = dict()
-        self._raspirevs["0002"] = "Model B Rev 1"
-        self._raspirevs["0003"] = "Model B Rev 1"
-        self._raspirevs["0004"] = "Model B Rev 2"
-        self._raspirevs["0005"] = "Model B Rev 2"
-        self._raspirevs["0006"] = "Model B Rev 2"
-        self._raspirevs["0007"] = "Model A"      
-        self._raspirevs["0008"] = "Model A"      
-        self._raspirevs["0009"] = "Model A"     
-        self._raspirevs["000d"] = "Model B Rev 2"
-        self._raspirevs["000e"] = "Model B Rev 2"
-        self._raspirevs["000f"] = "Model B Rev 2"
-        self._raspirevs["0010"] = "Model B+"     
-        self._raspirevs["0013"] = "Model B+"    
-        self._raspirevs["0011"] = "Compute Module"
-        self._raspirevs["0012"] = "Model A+"    
-        self._raspirevs["0014"] = "Compute 512MB"
-        self._raspirevs["0015"] = "Model A+"    
-        self._raspirevs["a01041"] = "Pi 2 Model B"  
-        self._raspirevs["a21041"] = "Pi 2 Model B"
-        self._raspirevs["900092"] = "PiZero"
-        self._raspirevs["a02082"] = "Pi 3 Model B" 
-        self._raspirevs["a22082"] = "Pi 3 Model B"
+        # self._raspirevs["0002"] = "B (Q1 2012)"   
+        # self._raspirevs["0003"] = "B (ECN0001) (Q3 2012)" 
+        # self._raspirevs["0004"] = "B (Q3 2012)"   
+        # self._raspirevs["0005"] = "B (Q4 2012)"   
+        # self._raspirevs["0006"] = "B (Q4 2012)"   
+        # self._raspirevs["0007"] = "A (Q1 2013)"   
+        # self._raspirevs["0008"] = "A (Q1 2013)"   
+        # self._raspirevs["0009"] = "A (Q1 2013)"   
+        # self._raspirevs["000d"] = "B (Q4 2012)"   
+        # self._raspirevs["000e"] = "B (Q4 2012)"   
+        # self._raspirevs["000f"] = "B (Q4 2012)"   
+        # self._raspirevs["0010"] = "B+ (Q3 2014)"  
+        # self._raspirevs["0011"] = "Compute Module (Q2 2014)"
+        # self._raspirevs["0012"] = "A+ (Q4 2014)"  
+        # self._raspirevs["0013"] = "B+ (Q1 2015)"  
+        # self._raspirevs["0014"] = "Compute Module (Q2 2014)"
+        # self._raspirevs["0015"] = "A+ (Q? 201?)"  
+        # self._raspirevs["a01040"] = "2 Model B (Q? 201?)"   
+        # self._raspirevs["a01041"] = "2 Model B (Q1 2015)"   
+        # self._raspirevs["a21041"] = "2 Model B (Q1 2015)"   
+        # self._raspirevs["a22042"] = "2 Model B (with BCM2837) (Q3 2016)"
+        # self._raspirevs["900092"] = "Zero (Q4 2015)"    
+        # self._raspirevs["900093"] = "Zero (Q2 2016)"    
+        # self._raspirevs["920093"] = "Zero (Q4 2016?)"    
+        # self._raspirevs["a02082"] = "3 Model B (Q1 2016)"   
+        # self._raspirevs["a22082"] = "3 Model B (Q1 2016)"   
 
     def _get_cpu_freq(self, maxcpu):
         freqs = list()
@@ -92,11 +100,13 @@ class OSInfoTask(RasPySimpleTask):
                     info_result["hardware"] = result
 
                 elif line.find(rev_line) >= 0:
-                    result = line[len(rev_line):].rstrip()
+                    result = line[len(rev_line):].rstrip()                    
                     info_result["revision"] = result
+                    if result.startswith('1000'):  
+                        self._overclocked = True                    
 
-        if info_result["revision"] in self._raspirevs:
-            info_result["board"] = self._raspirevs[info_result["revision"]]
+        # if info_result["revision"] in self._raspirevs:
+        #     info_result["board"] = self._raspirevs[info_result["revision"]]
                 
         return info_result
 
@@ -114,7 +124,7 @@ class OSInfoTask(RasPySimpleTask):
         
         self._hardware = cpu_infos["hardware"]
         self._revision = cpu_infos["revision"]
-        self._board = cpu_infos["board"]
+        # self._board = cpu_infos["board"]
 
     def _update_unixkernel(self):
         with open("/proc/sys/kernel/osrelease", "r") as f:
@@ -150,7 +160,7 @@ class OSInfoTask(RasPySimpleTask):
     def startup_event(self, db, cfg):
         self._update_unixkernel()
         self._update_distro()
-        # +ISSUE
+        # ISSUE
         # cpu info might not just be static data
         # freq could change on the fly...
         self._update_cpus()
@@ -173,5 +183,6 @@ class OSInfoTask(RasPySimpleTask):
             cpus=self._cpus,
             hardware=self._hardware,
             revision=self._revision,
-            board=self._board
+            overclocked=self._overclocked
+            # board=self._board
         )
