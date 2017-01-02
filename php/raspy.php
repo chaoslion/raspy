@@ -183,6 +183,9 @@ class RasPy  {
         $info = &$response['info'];
         $report = &$response['report'];
 
+        // add task name
+        $info['task'] = $this->taskname;
+
         // reduce first
         // then remove api
 
@@ -226,10 +229,9 @@ class RasPy  {
                 case 'fritz':
                     $this->reduce_samplelogger($report['dsl']['rx']['rate']['rates']);
                     $this->reduce_samplelogger($report['dsl']['tx']['rate']['rates']);
-                    // remove log
-                    foreach($report['devices'] as &$device) {
-                        print_r($device['log']);
-                        //unset($report['devices'][$key]['log']);
+                    // remove logs
+                    foreach($report['landevicectrl']['devices'] as &$device) {
+                        $this->reduce_samplelogger($device['log']);                                            
                     }
                     break;
                 case 'rcsocket':
