@@ -202,7 +202,7 @@ class TrafficTask(RasPyTask):
                 self.loge("Error Transport: {}".format(e))
             except googlemaps.exceptions.HTTPError as e:
                 self.loge("Error HTTP: {}".format(e))
-            except googlemaps.exceptions.APIError as e:
+            except googlemaps.exceptions.ApiError as e:
                 self.loge("Error API: {}".format(e))
             except googlemaps.exceptions.Timeout:
                 self.loge("Timout occured")
